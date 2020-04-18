@@ -3,6 +3,7 @@ import math
 import random
 #E=2.71828
 import h5py
+A=0.01
 class act:#激活函数
     def sigmoid(x):
         return 1.0/(1.0+np.exp(-x))
@@ -10,8 +11,12 @@ class act:#激活函数
         return (np.exp(x)-np.exp(-x))/(np.exp(x)+np.exp(-x))
     def none(x):
         return x
-    def Relu(x):
+    def relu(x):
         return 1 * (x > 0) * x
+    def leaky_relu(x):
+        return np.where(x <=0, x*A, x)
+    def elu(x):
+        return np.where(x <=0, A*(np.exp(x)-1), x)
 class loss:
     def ms(tru,fed):
         return 0.5*np.sum((fed-tru)**2)
@@ -22,8 +27,12 @@ class der:#导数
         return 1-math.pow(act.tanh(x),2)
     def none(x):
         return 1
-    def Relu(x):
+    def relu(x):
         return 1 * (x > 0) * 1
+    def leaky_relu(x):
+        return np.where(x >0, 1, A)
+    def elu(x):
+        return np.where(x <=0, A*np.exp(x), 1)
 class NE(object):
    
     def __init__(self, sizes:int,acts=act.none,ders=der.none,losss=loss.ms):#初始化用NE（）调用，self不是参数
