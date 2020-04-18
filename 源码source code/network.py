@@ -10,6 +10,8 @@ class act:#激活函数
         return (np.exp(x)-np.exp(-x))/(np.exp(x)+np.exp(-x))
     def none(x):
         return x
+    def Relu(x):
+        return 1 * (x > 0) * x
 class loss:
     def ms(tru,fed):
         return 0.5*np.sum((fed-tru)**2)
@@ -20,7 +22,8 @@ class der:#导数
         return 1-math.pow(act.tanh(x),2)
     def none(x):
         return 1
-
+    def Relu(x):
+        return 1 * (x > 0) * 1
 class NE(object):
    
     def __init__(self, sizes:int,acts=act.none,ders=der.none,losss=loss.ms):#初始化用NE（）调用，self不是参数
