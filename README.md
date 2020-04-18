@@ -1,2 +1,2 @@
-＃沉井王锣
-一个简单的神经网络
+一个简单的神经网络，希望大佬指点
+A simple neural network, I hope you give directions
