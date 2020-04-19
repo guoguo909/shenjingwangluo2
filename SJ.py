@@ -111,7 +111,7 @@ class bp:
                 b[1][i+j]=b[0][i]*self.w[len(self.w)-1][j][len(self.w)-2][i]+self.b[len(self.w)-1][j][len(self.w)-2][i]
         for i in range(len(self.size)-1):
             for j in range(self.size[ij-i]*self.size[ij-i-1]):
-                b1=self.feed[ij-i][int(j/self.size[ij-i-1])]
+                b1=b[i+1][j]
                 b3=self.feeds[ij-i][int(j/self.size[ij-i-1])]
                 b[i+1][j]=b1*b3
                 for js in range(self.size[ij-i-1]):
