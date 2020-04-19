@@ -73,47 +73,55 @@ class bp:
          a.append([])
          for i in ass:
              a[0].append(i.gets())
+         
          for i in range(len(self.size)-1):
              a.append([])
              for j in range(self.size[i+1]):
+                 jj=np.array(0)
                  for js in range(self.size[i]):
-                     a[i+1].append(self.actx((a[i][js]*self.w[i][js][i+1][j])+self.b[i][js][i+1][j]))
+                     jj=jj+self.actx((a[i][js]*self.w[i][js][i+1][j])+self.b[i][js][i+1][j])
+                 a[i+1].append(jj)
          self.feed=np.array(a)
          return np.array(a[len(a)-2])
     def op(self,input,out,eta):
         self.feedforward(input)
         self.updatew(input,self.back(out),eta)
     def back(self,out):
-        b=[[]]
+        b=np.zeros((len(self.size),max(self.size)))
         out=np.array(out)
-        b.append([])
         ij=len(self.size)-1
+        ib=0
         for i in out:
             a1=np.array(self.feed[len(self.feed)-2])
             a2=np.array(i.gets())
             a3=np.array(self.feed[len(self.feed)-2])
             a33=len(self.feed)
-            a4=np.array(np.array([1])-self.feed[a33-2])
-            b[0].append(-(a1-a2)*a3*a4)
-        b.append([])
+            a4=np.array(np.array(1)-self.feed[a33-2])
+            a5=-(a1-a2)*a3*a4
+            for ix in range(len(a5)):
+                b[0][ix]=a5[ix][0]
+            ib=ib+1
         for i in range(self.size[len(self.size)-1]):
             for j in range(self.size[len(self.size)-2]):
-                b[1].append(b[0][i]*self.w[len(self.w)-1][j][len(self.w)-2][i]+self.b[len(self.w)-1][j][len(self.w)-2][i])
+                b[1][i+j]=b[0][i]*self.w[len(self.w)-1][j][len(self.w)-2][i]+self.b[len(self.w)-1][j][len(self.w)-2][i]
         for i in range(len(self.size)-1):
-            b.append([])
             for j in range(self.size[ij-i]*self.size[ij-i-1]):
-                b1=self.feed[ij-i][j]
+                b1=self.feed[ij-i][int(j/self.size[ij-i-1])]
                 b2=b[i+1][j]
-                b3=1-self.feed[ij-i][j]
+                b3=1-self.feed[ij-i][int(j/self.size[ij-i-1])]
                 b[i+1][j]=b1*b2*b3
                 for js in range(self.size[ij-i-1]):
-                    b.append([])
-                    b[i+2].append(b[i+1][j]*self.w[ij-i][js][ij-i-1][j]+self.b[ij-i][js][ij-i-1][j])
+                    b[i+1][js]=(b[i+1][j]*self.w[ij-i][js][ij-i-1][j]+self.b[ij-i][js][ij-i-1][j])
         return b
     def updatew(self,input,bs,eta):
         for i in range(len(self.size)-1):
             for j in range(self.size[i]):
                 for js in range(self.size[i+1]):
-                    self.w[i][j][i+1][js]=self.w[i][j][i+1][js]+(self.feed[i][j]*bs[i+1][js]*eta)
-                    self.b[i][j][i+1][js]=self.b[i][j][i+1][js]+(bs[i+1][js]*eta)
+                    a1=np.array(self.w[i][j][i+1][js])
+                    a11=self.feed[i][j]
+                    a22=bs[i+1][js]
+                    a2=np.array(a11*a22*eta)
+                    a3=a1+a2
+                    self.w[i][j][i+1][js]=a3
+                    self.b[i][j][i+1][js]=self.b[i][j][i+1][js]+bs[i+1][js]*eta
 #
