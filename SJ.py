@@ -101,4 +101,5 @@ class bp:
                     b[i+2].append(b[i+1][j]*self.w[ij-i][js][ij-i-1][j]+self.b[ij-i][js][ij-i-1][j])
         return b
 #    def updatew(self,input,b,eta):
+
 #
