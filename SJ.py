@@ -127,5 +127,5 @@ class bp:
                     a2=np.array(a11*a22*eta)
                     a3=a1+a2
                     self.w[i][j][i+1][js]=a3
-                    self.b[i][j][i+1][js]=self.b[i][j][i+1][js]+bs[i+1][js]*eta
+                    self.b[i][j][i+1][js]=self.b[i][j][i+1][js]*eta
 #
