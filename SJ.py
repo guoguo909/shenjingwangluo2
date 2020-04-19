@@ -70,18 +70,25 @@ class bp:
     def feedforward(self,input):#前向传播
          ass=input
          a=[[]]
+         ab=[[]]
          a.append([])
+         ab.append([])
          for i in ass:
              a[0].append(i.gets())
-         
+             ab[0].append(i.gets())
          for i in range(len(self.size)-1):
              a.append([])
+             ab.append([])
              for j in range(self.size[i+1]):
                  jj=np.array(0)
+                 js=np.array(0)
                  for js in range(self.size[i]):
                      jj=jj+self.actx((a[i][js]*self.w[i][js][i+1][j])+self.b[i][js][i+1][j])
+                     js=js+self.derx((a[i][js]*self.w[i][js][i+1][j])+self.b[i][js][i+1][j])
                  a[i+1].append(jj)
+                 ab[i+1].append(js)
          self.feed=np.array(a)
+         self.feeds=np.array(a)
          return np.array(a[len(a)-2])
     def op(self,input,out,eta):
         self.feedforward(input)
@@ -94,10 +101,8 @@ class bp:
         for i in out:
             a1=np.array(self.feed[len(self.feed)-2])
             a2=np.array(i.gets())
-            a3=np.array(self.feed[len(self.feed)-2])
-            a33=len(self.feed)
-            a4=np.array(np.array(1)-self.feed[a33-2])
-            a5=-(a1-a2)*a3*a4
+            a3=np.array(self.feeds[len(self.feed)-2])
+            a5=-(a1-a2)*a3
             for ix in range(len(a5)):
                 b[0][ix]=a5[ix][0]
             ib=ib+1
@@ -107,9 +112,8 @@ class bp:
         for i in range(len(self.size)-1):
             for j in range(self.size[ij-i]*self.size[ij-i-1]):
                 b1=self.feed[ij-i][int(j/self.size[ij-i-1])]
-                b2=b[i+1][j]
-                b3=1-self.feed[ij-i][int(j/self.size[ij-i-1])]
-                b[i+1][j]=b1*b2*b3
+                b3=self.feeds[ij-i][int(j/self.size[ij-i-1])]
+                b[i+1][j]=b1*b3
                 for js in range(self.size[ij-i-1]):
                     b[i+1][js]=(b[i+1][j]*self.w[ij-i][js][ij-i-1][j]+self.b[ij-i][js][ij-i-1][j])
         return b
