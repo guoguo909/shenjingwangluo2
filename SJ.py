@@ -33,7 +33,7 @@ class loss:
     def ms(tru,fed):
         return 0.5*np.sum((fed-tru)**2)
     def square(tru,fed):
-        return (fed-tru)**2
+        return np.sum((fed-tru)**2)
 class tensor:
     def __init__(self,x:np):
         self.a=x
@@ -46,13 +46,17 @@ class tensor:
     def gets(self):
         return self.a
 class bp:
-    def __init__(self,sizes,ders=der.none,acts=act.none,los=loss.ms):
+    def __init__(self,sizes,insizes=1,ders=der.none,acts=act.none,los=loss.ms):
         self.size=sizes
         self.derx=ders
         self.actx=acts
         self.losx=los
-        self.w=np.random.rand(len(sizes),max(sizes)+1,len(sizes),max(sizes)+1)
-        self.b=np.random.rand(len(sizes),max(sizes)+1,len(sizes),max(sizes)+1)
+        self.w=np.random.rand(len(sizes),max(sizes)+1,len(sizes),max(sizes)+1,insizes)
+        self.b=np.random.rand(len(sizes),max(sizes)+1,len(sizes),max(sizes)+1,insizes)
+        self.etas=0.0
+        self.lo=float("inf")
+        self.lob=0.0
+        self.insize=insizes
     def getw(self,x,y,xx,yy):
         return self.w[x,y,xx,yy]
     def getb(self,x,y,xx,yy):
@@ -90,11 +94,25 @@ class bp:
          self.feed=np.array(a)
          self.feeds=np.array(a)
          return np.array(a[len(a)-2])
-    def op(self,input,out,eta):
+    def op(self,input,out,eta=None,etb=0.000001):
+        if eta==None:
+            eta=self.etas+etb-self.lob
+            z=True
+        else:
+            z=False
         self.feedforward(input)
         self.updatew(input,self.back(out),eta)
+        if z:
+            if self.los(input,out)<self.lo:
+                self.lo=self.los(input,out)
+                self.etas=self.etas+etb
+            else:
+                
+                 self.lob=self.lob*10
+            if self.los(input,out)==float("nan"):
+                self.lob=self.lob*100
     def back(self,out):
-        b=np.zeros((len(self.size),max(self.size)))
+        b=np.zeros((len(self.size),max(self.size),self.insize))
         out=np.array(out)
         ij=len(self.size)-1
         ib=0
@@ -108,14 +126,14 @@ class bp:
             ib=ib+1
         for i in range(self.size[len(self.size)-1]):
             for j in range(self.size[len(self.size)-2]):
-                b[1][i+j]=b[0][i]*self.w[len(self.w)-1][j][len(self.w)-2][i]+self.b[len(self.w)-1][j][len(self.w)-2][i]
+                b[1][i+j-1]=b[0][i]*self.w[len(self.w)-1][j][len(self.w)-2][i]+self.b[len(self.w)-1][j][len(self.w)-2][i]
         for i in range(len(self.size)-1):
             for j in range(self.size[ij-i]*self.size[ij-i-1]):
-                b1=b[i+1][j]
+                b1=b[i+1][int(j/self.size[ij-i-1])]
                 b3=self.feeds[ij-i][int(j/self.size[ij-i-1])]
-                b[i+1][j]=b1*b3
+                b[i+1][int(j/self.size[ij-i-1])]=np.array(b1*b3)
                 for js in range(self.size[ij-i-1]):
-                    b[i+1][js]=(b[i+1][j]*self.w[ij-i][js][ij-i-1][j]+self.b[ij-i][js][ij-i-1][j])
+                    b[i+1][js]=(b[i+1][int(j/self.size[ij-i-1])]*self.w[ij-i][js][ij-i-1][int(j/self.size[ij-i-1])-1]+self.b[ij-i][js][ij-i-1][int(j/self.size[ij-i-1])-1])
         return b
     def updatew(self,input,bs,eta):
         for i in range(len(self.size)-1):
