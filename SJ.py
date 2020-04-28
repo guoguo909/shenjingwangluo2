@@ -29,7 +29,7 @@ class der:#导数
         return np.where(x >0, 1, A)
     def elu(x):
         return np.where(x <=0, A*np.exp(x), 1)
-class loss:
+class loss:#损失函数
     def ms(tru,fed):
         return 0.5*np.sum((fed-tru)**2)
     def square(tru,fed):
@@ -46,7 +46,7 @@ class tensor:
     def gets(self):
         return self.a
 class bp:
-    def __init__(self,sizes,insizes=1,ders=der.none,acts=act.none,los=loss.ms):
+    def __init__(self,sizes,insizes=1,ders=der.none,acts=act.none,los=loss.ms):#定义
         self.size=sizes
         self.derx=ders
         self.actx=acts
@@ -54,15 +54,15 @@ class bp:
         self.w=np.random.rand(len(sizes),max(sizes)+1,len(sizes),max(sizes)+1,insizes)
         self.b=np.random.rand(len(sizes),max(sizes)+1,len(sizes),max(sizes)+1,insizes)
         self.insize=insizes
-    def getw(self,x,y,xx,yy):
+    def getw(self,x,y,xx,yy):#获取权重
         return self.w[x,y,xx,yy]
-    def getb(self,x,y,xx,yy):
+    def getb(self,x,y,xx,yy):#获取偏置
         return self.b[x,y,xx,yy]
-    def getws(self):
+    def getws(self):#获取权重数组
         return self.w
-    def getbs(self):
+    def getbs(self):#获取偏置数组
         return self.b
-    def los(self,input,out):
+    def los(self,input,out):#损失
         a=[]
         for i in out:
             a.append(i.gets())
@@ -92,10 +92,10 @@ class bp:
          self.feed=np.array(a)
          self.feeds=np.array(a)
          return np.array(a[len(a)-2])
-    def op(self,input,out,eta):
+    def op(self,input,out,eta):#优化
         self.feedforward(input)
         self.updatew(input,self.back(out),eta)
-    def back(self,out):
+    def back(self,out):#反向传播
         b=np.zeros((len(self.size),max(self.size),self.insize))
         out=np.array(out)
         ij=len(self.size)-1
@@ -119,7 +119,7 @@ class bp:
                 for js in range(self.size[ij-i-1]):
                     b[i+1][js]=(b[i+1][int(j/self.size[ij-i-1])]*self.w[ij-i][js][ij-i-1][int(j/self.size[ij-i-1])-1]+self.b[ij-i][js][ij-i-1][int(j/self.size[ij-i-1])-1])
         return b
-    def updatew(self,input,bs,eta):
+    def updatew(self,input,bs,eta):#更改权重偏置
         for i in range(len(self.size)-1):
             for j in range(self.size[i]):
                 for js in range(self.size[i+1]):
