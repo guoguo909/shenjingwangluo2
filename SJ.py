@@ -90,7 +90,7 @@ class bp:
                  a[i+1].append(jj)
                  ab[i+1].append(js)
          self.feed=np.array(a)
-         self.feeds=np.array(a)
+         self.feeds=np.array(ab)
          return np.array(a[len(a)-2])
     def op(self,input,out,eta):#优化
         self.feedforward(input)
@@ -123,11 +123,6 @@ class bp:
         for i in range(len(self.size)-1):
             for j in range(self.size[i]):
                 for js in range(self.size[i+1]):
-                    a1=np.array(self.w[i][j][i+1][js])
-                    a11=self.feed[i][j]
-                    a22=bs[i+1][js]
-                    a2=np.array(a11*a22*eta)
-                    a3=a1+a2
-                    self.w[i][j][i+1][js]=a3
-                    self.b[i][j][i+1][js]=self.b[i][j][i+1][js]*eta
+                    self.w[i][j][i+1][js]=np.array(self.w[i][j][i+1][js])+np.array(self.feed[i][j]*bs[i+1][js]*eta)
+                    self.b[i][j][i+1][js]=np.array(self.b[i][j][i+1][js])-np.array(eta*bs[i+1][js])
 #
