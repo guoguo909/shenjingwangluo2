@@ -36,11 +36,11 @@ class loss:
         return np.sum((fed-tru)**2)
 class tensor:
     def __init__(self,x:np):
-        self.a=x
+        self.a=x.flatten()
     def lens(self):
         return len(self.a)
     def set(self,x,y):
-        self.a[x]=y
+        self.a[x]=y.flatten()
     def get(self,x):
         return self.a[x]
     def gets(self):
@@ -53,9 +53,6 @@ class bp:
         self.losx=los
         self.w=np.random.rand(len(sizes),max(sizes)+1,len(sizes),max(sizes)+1,insizes)
         self.b=np.random.rand(len(sizes),max(sizes)+1,len(sizes),max(sizes)+1,insizes)
-        self.etas=0.0
-        self.lo=float("inf")
-        self.lob=0.0
         self.insize=insizes
     def getw(self,x,y,xx,yy):
         return self.w[x,y,xx,yy]
@@ -80,6 +77,7 @@ class bp:
          for i in ass:
              a[0].append(i.gets())
              ab[0].append(i.gets())
+         
          for i in range(len(self.size)-1):
              a.append([])
              ab.append([])
@@ -94,23 +92,9 @@ class bp:
          self.feed=np.array(a)
          self.feeds=np.array(a)
          return np.array(a[len(a)-2])
-    def op(self,input,out,eta=None,etb=0.000001):
-        if eta==None:
-            eta=self.etas+etb-self.lob
-            z=True
-        else:
-            z=False
+    def op(self,input,out,eta):
         self.feedforward(input)
         self.updatew(input,self.back(out),eta)
-        if z:
-            if self.los(input,out)<self.lo:
-                self.lo=self.los(input,out)
-                self.etas=self.etas+etb
-            else:
-                
-                 self.lob=self.lob*10
-            if self.los(input,out)==float("nan"):
-                self.lob=self.lob*100
     def back(self,out):
         b=np.zeros((len(self.size),max(self.size),self.insize))
         out=np.array(out)
