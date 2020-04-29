@@ -36,11 +36,11 @@ class loss:#损失函数
         return np.sum((fed-tru)**2)
 class tensor:
     def __init__(self,x:np):
-        self.a=x.flatten()
+        self.a=x
     def lens(self):
         return len(self.a)
     def set(self,x,y):
-        self.a[x]=y.flatten()
+        self.a[x]=y
     def get(self,x):
         return self.a[x]
     def gets(self):
@@ -51,8 +51,8 @@ class bp:
         self.derx=ders
         self.actx=acts
         self.losx=los
-        self.w=np.random.rand(len(sizes),max(sizes)+1,len(sizes),max(sizes)+1,insizes)
-        self.b=np.random.rand(len(sizes),max(sizes)+1,len(sizes),max(sizes)+1,insizes)
+        self.w=np.random.rand(len(sizes),max(sizes),len(sizes),max(sizes),insizes)
+        self.b=np.random.rand(len(sizes),max(sizes),len(sizes),max(sizes),insizes)
         self.insize=insizes
     def getw(self,x,y,xx,yy):#获取权重
         return self.w[x,y,xx,yy]
@@ -92,6 +92,33 @@ class bp:
          self.feed=np.array(a)
          self.feeds=np.array(ab)
          return np.array(a[len(a)-2])
+    def feedforwards(self,input):#前向传播多输出版本
+         ass=input
+         a=[[]]
+         ab=[[]]
+         a.append([])
+         ab.append([])
+         for i in ass:
+             a[0].append(i.gets())
+             ab[0].append(i.gets())
+         
+         for i in range(len(self.size)-1):
+             a.append([])
+             ab.append([])
+             for j in range(self.size[i+1]):
+                 jj=np.array(0)
+                 js=np.array(0)
+                 for js in range(self.size[i]):
+                     jj=jj+self.actx((a[i][js]*self.w[i][js][i+1][j])+self.b[i][js][i+1][j])
+                     js=js+self.derx((a[i][js]*self.w[i][js][i+1][j])+self.b[i][js][i+1][j])
+                 a[i+1].append(jj)
+                 ab[i+1].append(js)
+         self.feed=np.array(a)
+         self.feeds=np.array(ab)
+         ret=[]
+         for i in a[len(a)-2]:
+             ret.append(tensor(np.array(i)))
+         return ret
     def op(self,input,out,eta):#优化
         self.feedforward(input)
         self.updatew(input,self.back(out),eta)
