@@ -47,13 +47,13 @@ class tensor:
         return self.a
 class bp:
     def __init__(self,sizes,ders,acts,insizes=1,los=loss.ms):#定义
-        self.size=sizes
-        self.derx=ders
-        self.actx=acts
-        self.losx=los
-        self.w=np.random.rand(len(sizes),max(sizes),len(sizes),max(sizes),insizes)
-        self.b=np.random.rand(len(sizes),max(sizes),len(sizes),max(sizes),insizes)
-        self.insize=insizes
+        self.size=sizes#神经网络大小
+        self.derx=ders#导数
+        self.actx=acts#激活函数
+        self.losx=los#损失函数
+        self.w=np.random.rand(len(sizes),max(sizes),len(sizes),max(sizes),insizes)#权重
+        self.b=np.random.rand(len(sizes),max(sizes),len(sizes),max(sizes),insizes)#偏置
+        self.insize=insizes#权重偏置的大小
     def getw(self,x,y,xx,yy):#获取权重
         return self.w[x,y,xx,yy]
     def getb(self,x,y,xx,yy):#获取偏置
@@ -63,16 +63,16 @@ class bp:
     def getbs(self):#获取偏置数组
         return self.b
     def los(self,input,out):#损失
-         a=[]
+         a=[]#中间处理用的变量
          for i in out:
                a.append(i.gets())
          a=np.array(a)
          return self.losx(a,self.feedforward(input))
       
     def feedforward(self,input):#前向传播
-         ass=input
-         a=[[]]
-         ab=[[]]
+         ass=input#input的拷贝
+         a=[[]]#激活函数的输出
+         ab=[[]]#导数的输出
          a.append([])
          ab.append([])
          for i in ass:
@@ -83,8 +83,8 @@ class bp:
              a.append([])
              ab.append([])
              for j in range(self.size[i+1]):
-                 jj=np.array(0)
-                 js=np.array(0)
+                 jj=np.array(0)#激活函数
+                 js=np.array(0)#导数
                  for js in range(self.size[i]):
                      jj=jj+self.actx[i]((a[i][js]*self.w[i][js][i+1][j])+self.b[i][js][i+1][j])
                      js=js+self.derx[i]((a[i][js]*self.w[i][js][i+1][j])+self.b[i][js][i+1][j])
