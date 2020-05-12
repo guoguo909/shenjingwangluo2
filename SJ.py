@@ -46,7 +46,7 @@ class tensor:
     def gets(self):
         return self.a
 class bp:
-    def __init__(self,sizes,insizes=1,ders=der.none,acts=act.none,los=loss.ms):#定义
+    def __init__(self,sizes,ders,acts,insizes=1,los=loss.ms):#定义
         self.size=sizes
         self.derx=ders
         self.actx=acts
@@ -63,11 +63,12 @@ class bp:
     def getbs(self):#获取偏置数组
         return self.b
     def los(self,input,out):#损失
-        a=[]
-        for i in out:
-            a.append(i.gets())
-        a=np.array(a)
-        return self.losx(a,self.feedforward(input))
+         a=[]
+         for i in out:
+               a.append(i.gets())
+         a=np.array(a)
+         return self.losx(a,self.feedforward(input))
+      
     def feedforward(self,input):#前向传播
          ass=input
          a=[[]]
@@ -75,8 +76,8 @@ class bp:
          a.append([])
          ab.append([])
          for i in ass:
-             a[0].append(i.gets())
-             ab[0].append(i.gets())
+              a[0].append(i.gets())
+              ab[0].append(i.gets())
          
          for i in range(len(self.size)-1):
              a.append([])
@@ -85,8 +86,8 @@ class bp:
                  jj=np.array(0)
                  js=np.array(0)
                  for js in range(self.size[i]):
-                     jj=jj+self.actx((a[i][js]*self.w[i][js][i+1][j])+self.b[i][js][i+1][j])
-                     js=js+self.derx((a[i][js]*self.w[i][js][i+1][j])+self.b[i][js][i+1][j])
+                     jj=jj+self.actx[i]((a[i][js]*self.w[i][js][i+1][j])+self.b[i][js][i+1][j])
+                     js=js+self.derx[i]((a[i][js]*self.w[i][js][i+1][j])+self.b[i][js][i+1][j])
                  a[i+1].append(jj)
                  ab[i+1].append(js)
          self.feed=np.array(a)
@@ -120,8 +121,9 @@ class bp:
              ret.append(tensor(np.array(i)))
          return ret
     def op(self,input,out,eta):#优化
-        self.feedforward(input)
-        self.updatew(input,self.back(out),eta)
+        for i in range(len(input)):
+            self.feedforward(input[i])
+            self.updatew(input,self.back(out[i]),eta)
     def back(self,out):#反向传播
         b=np.zeros((len(self.size),max(self.size),self.insize))
         out=np.array(out)
